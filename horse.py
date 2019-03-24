@@ -14,3 +14,10 @@ class Horse:
 
     def __repr__(self):
         return '(' + str(self.x) + ' ' + str(self.y) + ')'
+
+    def __lt__(self, other):
+        if self.y < other.y:
+            return True
+        elif self.y == other.y:
+            return self.x < other.x
+        return False

@@ -31,11 +31,12 @@ def successor(father, m, n):
                         newChild = Node(None,None)
                         newChild.horses = father.horses.copy()
                         newChild.horses.remove(h)
-                        newChild.horses.append(newHorse)
-                        newChild.parent = father
-                        if newChild not in childs:
-                            if checkForTreat(newHorse,newChild.horses):
-                                childs.append(newChild)
+                        if checkForTreat(newHorse, newChild.horses):
+                            newChild.horses.append(newHorse)
+                            newChild.horses.sort()
+                            newChild.parent = father
+                            if newChild not in childs:
+                                    childs.append(newChild)
     return childs
 
 def checkForBound(horse, m, n):
@@ -73,7 +74,6 @@ def checkForTreat(horse, horses):
                 else:
                     xCoef *= 2
                 newHorse = Horse(horse.x + xCoef, horse.y + yCoef)
-
                 if newHorse in horses:
                     return False
     return True

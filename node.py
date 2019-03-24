@@ -1,3 +1,4 @@
+import multiprocessing
 class Node:
     parent = None
     horses = None
@@ -11,8 +12,10 @@ class Node:
         return str(self.horses)
 
     def __eq__(self, other):
-        for h in self.horses:
-            if h not in other.horses:
+        """the lists must be sorted"""
+        z = zip(self.horses, other.horses)
+        for i, j in z:
+            if i != j:
                 return False
         return True
 
