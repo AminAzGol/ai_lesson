@@ -1,14 +1,11 @@
-from game_info import getStart, getGoal, get_width_height, testStart, read_data_from_usr
-from fringe import Fringe
-from horse import Horse
+from game_info import getStart, getGoal, get_width_height, read_data_from_usr
 from time import time
 from show_output import show_output
 from successor import successor
-from profiling import profile
 
 
 # @profile
-def bfs():
+def ids():
     print("bfs started ...")
     startNode = getStart()
     goal = getGoal()

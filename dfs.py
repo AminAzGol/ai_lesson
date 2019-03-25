@@ -1,4 +1,4 @@
-from game_info import getStart, getGoal, get_width_height,testStart,read_data_from_usr
+from game_info import getStart, getGoal, get_width_height, read_data_from_usr
 from time  import time
 
 from profiling import profile

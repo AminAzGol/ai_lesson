@@ -37,6 +37,7 @@ def successor(father, m, n):
                             newChild.parent = father
                             if newChild not in childs:
                                     childs.append(newChild)
+                                    newChild.calc_score()
     return childs
 
 def checkForBound(horse, m, n):

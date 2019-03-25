@@ -1,8 +1,8 @@
-import multiprocessing
+import game_info
 class Node:
     parent = None
     horses = None
-    priority = 1
+    score = 0
 
     def __init__(self, parent, horses):
         self.parent = parent
@@ -23,4 +23,11 @@ class Node:
         return hash(self.horses)
 
     def __lt__(self, other):
-        return self.priority < other.priority
+        return self.score < other.score
+
+    def calc_score(self):
+        width, height = game_info.get_width_height()
+        m = 0
+        for h in self.horses:
+            m += h.x + h.y * height
+        self.score = m
