@@ -4,7 +4,7 @@ from eval import evaluation
 
 
 def successor(father, width, height, goal):
-    childs = []
+    childes = []
     for h in father.horses:
         for i in range(0, 3):
             'first move'
@@ -38,11 +38,11 @@ def successor(father, width, height, goal):
                             newChild.horses.append(newHorse)
                             newChild.horses.sort()
                             newChild.parent = father
-                            if newChild not in childs:
-                                    childs.append(newChild)
+                            if newChild not in childes:
+                                    childes.append(newChild)
                                     newChild.calc_score()
                                     newChild.cost = evaluation(newChild, goal)
-    return childs
+    return childes
 
 def checkForBound(horse, m, n):
     'bargam'
@@ -54,6 +54,8 @@ def checkForBound(horse, m, n):
 #             if h != h2 and h.x == h2.x and h.y == h2.y:
 #                 return False
 #             return True
+
+
 def checkForTreat(horse, horses):
     for i in range(0, 3):
         'first move'

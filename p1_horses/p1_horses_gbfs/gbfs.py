@@ -4,6 +4,7 @@ from show_output import show_output
 from successor import successor
 from check_visited import check_visited, add_to_visited
 
+
 def gbfs():
     print("gbfs started ...")
     start_node = getStart()
@@ -20,7 +21,8 @@ def gbfs():
         add_to_visited(curr_node, visited)
         childes = successor(curr_node, n, m, goal)
         for child in childes:
-            if check_visited(child, visited):
+            a = check_visited(child, visited)
+            if a:
                 continue
             if child == goal:
                 return 'found', child
