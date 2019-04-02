@@ -1,80 +1,52 @@
 from horse import Horse
 from node  import Node
+
+
 def successor(father, m, n):
-    childs = []
+    childes = []
     for h in father.horses:
-        for i in range(0, 3):
+        for i in [-1, 1]:
             'first move'
-            '0:top 1:right 2:bottom 3:left'
+            '0:top 2:bottom'
             for j in [-1, 1]:
                 for t in [1, 2]:
-                    yCoef = None
-                    xCoef = None
-                    if (i == 0):
-                        yCoef = 1
-                        xCoef = j
-                    if (i == 1):
-                        xCoef = 1
-                        yCoef = j
-                    if(i == 2):
-                        yCoef = -1
-                        xCoef = j
-                    if i == 3:
-                        xCoef = -1
-                        yCoef = j
+                    y_c = i
+                    x_c = j
                     if t == 1:
-                        yCoef *= 2
+                        y_c *= 2
                     else:
-                        xCoef *= 2
-                    newHorse = Horse(h.x + xCoef, h.y + yCoef)
-                    if checkForBound(newHorse, m, n):
-                        newChild = Node(None,None)
-                        newChild.horses = father.horses.copy()
-                        newChild.horses.remove(h)
-                        if checkForTreat(newHorse, newChild.horses):
-                            newChild.horses.append(newHorse)
-                            newChild.horses.sort()
-                            newChild.parent = father
-                            if newChild not in childs:
-                                    childs.append(newChild)
-                                    newChild.calc_score()
-    return childs
+                        x_c *= 2
+                    new_horse = Horse(h.x + x_c, h.y + y_c)
+                    if check_for_bound(new_horse, m, n):
+                        new_child = Node(None, None)
+                        new_child.horses = father.horses.copy()
+                        new_child.horses.remove(h)
+                        if check_for_treat(new_horse, new_child.horses):
+                            new_child.horses.append(new_horse)
+                            new_child.horses.sort()
+                            new_child.parent = father
+                            if new_child not in childes:
+                                    childes.append(new_child)
+                                    new_child.calc_score()
+    return childes
 
-def checkForBound(horse, m, n):
-    'bargam'
-    return m > horse.x >= 0 <= horse.y < n
 
-# def checkForTreat(horses):
-#     for h in horses:
-#         for h2 in horses:
-#             if h != h2 and h.x == h2.x and h.y == h2.y:
-#                 return False
-#             return True
-def checkForTreat(horse, horses):
-    for i in range(0, 3):
-        'first move'
-        '0:top 1:right 2:bottom 3:left'
+def check_for_bound(horse, m, n):
+    ret = m > horse.x >= 0 <= horse.y < n
+    return ret
+
+
+def check_for_treat(horse, horses):
+    for i in [-1, 1]:
         for j in [-1, 1]:
             for t in [1, 2]:
-                yCoef = None
-                xCoef = None
-                if i == 0:
-                    yCoef = 1
-                    xCoef = j
-                if (i == 1):
-                    xCoef = 1
-                    yCoef = j
-                if (i == 2):
-                    yCoef = -1
-                    xCoef = j
-                if i == 3:
-                    xCoef = -1
-                    yCoef = j
+                y_c = i
+                x_c = j
                 if t == 1:
-                    yCoef *= 2
+                    y_c *= 2
                 else:
-                    xCoef *= 2
-                newHorse = Horse(horse.x + xCoef, horse.y + yCoef)
+                    x_c *= 2
+                newHorse = Horse(horse.x + x_c, horse.y + y_c)
                 if newHorse in horses:
                     return False
     return True

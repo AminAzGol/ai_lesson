@@ -2,10 +2,11 @@ from game_info import getStart, getGoal, get_width_height, read_data_from_usr
 from time import time
 from show_output import show_output
 from successor import successor
+from check_visited import check_visited, add_to_visited
 
 
-def bfs():
-    print("bfs started ...")
+def a_star():
+    print("Astar started ...")
     start_node = getStart()
     goal = getGoal()
     n, m = get_width_height()
@@ -18,37 +19,27 @@ def bfs():
             return 'failure', None
         curr_node = fringe.pop()
         add_to_visited(curr_node, visited)
-        # visited.append(curr_node)
-        childes = successor(curr_node, n, m)
+        childes = successor(curr_node, n, m, goal)
         for child in childes:
-            if check_visited(child, visited):
-            # if child in visited:
+            a = check_visited(child, visited)
+            if a:
                 continue
             if child == goal:
                 return 'found', child
             fringe.insert(0, child)
 
 
-def add_to_visited(node, visited):
-    for i in range(0, len(visited)):
-        if visited[i].score <= node.score:
-            visited.insert(i, node)
+def add_to_fringe(node, fringe):
+    for i in range(0, len(fringe)):
+        if fringe[i].cost <= node.cost:
+            fringe.insert(i, node)
             return
-    visited.insert(-1, node)
-
-
-def check_visited(node, visited):
-    for n in visited:
-        if node.score < n.score:
-            return False
-        elif node == n:
-            return True
-    return False
+    fringe.insert(-1, node)
 
 
 read_data_from_usr()
 tic = time()
-msg, finalNode = bfs()
+msg, finalNode = a_star()
 if msg == 'failure':
     print("failure")
     exit()
