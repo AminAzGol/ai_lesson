@@ -19,17 +19,21 @@ def gbfs():
     while 1:
         if not fringe:
             return 'failure', None
-        curr_node = fringe.pop()
-        # a = check_visited(curr_node, visited)
-        if curr_node in visited:
+        curr_node = fringe.pop(0)
+        if check_visited(curr_node, visited):
+        # if curr_node in visited:
             continue
         if curr_node == goal:
+            print( len(visited) )
             return 'found', curr_node
-        # add_to_visited(curr_node, visited)
-        visited.append(curr_node)
+        add_to_visited(curr_node, visited)
+        if len(visited) % 1000 == 0:
+            print(f"visited: {len(visited)}")
+            print(f"fringe: {len(fringe)}")
+        # visited.append(curr_node)
         childes = successor(curr_node, n, m, goal)
         for child in childes:
-            add_to_fringe(child, fringe)
+            add_to_fringe2(child, fringe)
 
 
 def add_to_fringe(node, fringe):
@@ -40,40 +44,34 @@ def add_to_fringe(node, fringe):
     fringe.append(node)
 
 
-def add_visited2(node, visited):
-    for i in range(0, len(visited)):
-        if visited[i].score >= node.score:
-            visited.insert(i, node)
-            return
-    visited.insert(-1, node)
-
-
-def check_visited2(node, visited):
-    # if not visited:
-    #     return False
-    # return find_rec(visited, node, 0, len(visited) - 1)
-    for i in range(0, len(visited)):
-        if visited[i].score > node.score:
-            return False
-        elif visited[i] == node:
-            return True
-    return False
-
-
-def find_rec(the_list, element, start, end):
-    if the_list[start] == element or the_list[end] == element:
-        return True
-    elif start == end:
-        return False
+def add_to_fringe2(node, fringe):
+    if not fringe:
+        fringe.insert(0, node)
+        return
+    last = fringe[len(fringe) - 1]
+    first = fringe[0]
+    if last.cost < node.cost:
+        fringe.append(node)
+    elif first.cost > node.cost:
+        fringe.insert(0, node)
     else:
-        mid = int((start + end) / 2)
-        if the_list[mid] == element:
-            return True
-        elif the_list[mid].score > element.score:
-            find_rec(the_list, element, start, mid)
-        else:
-            find_rec(the_list, element, mid, end)
+        add_to_visited_rec(node, fringe, 0, len(fringe) - 1)
 
+
+def add_to_visited_rec(node, fringe, first, last):
+    if fringe[last].cost < node.cost < fringe[first].cost:
+        return False
+    if last - first == 1 or 0 == last - first:
+        fringe.insert(last, node)
+        return 1
+    mid = int((first + last) / 2)
+    if fringe[mid].cost == node.cost:
+        fringe.insert(mid, node)
+    else:
+        if node.cost < fringe[mid].cost:
+            add_to_visited_rec(node, fringe, first, mid)
+        else:
+            add_to_visited_rec(node, fringe, mid, last)
 
 read_data_from_usr()
 tic = time()

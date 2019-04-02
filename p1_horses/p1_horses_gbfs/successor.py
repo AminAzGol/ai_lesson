@@ -29,6 +29,7 @@ def successor(father, m, n, goal):
                                     childes.append(new_child)
                                     new_child.calc_score()
                                     new_child.cost = eval.evaluation(new_child, goal)
+                                    
     return childes
 
 
