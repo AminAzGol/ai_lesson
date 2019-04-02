@@ -10,7 +10,7 @@ class Horse:
         return other.x == self.x and self.y == other.y
 
     def __str__(self):
-        return str(self.x ) + ' ' + str(self.y)
+        return str(self.x + 1) + ' ' + str(self.y + 1)
 
     def __repr__(self):
         return '(' + str(self.x) + ' ' + str(self.y) + ')'
