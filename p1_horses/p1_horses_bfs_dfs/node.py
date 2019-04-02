@@ -12,6 +12,7 @@ class Node:
         return str(self.horses)
 
     def __eq__(self, other):
+        """TODO: in bug dare ha """
         """the lists must be sorted"""
         z = zip(self.horses, other.horses)
         for i, j in z:
