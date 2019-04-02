@@ -26,9 +26,9 @@ def diff(li1, li2):
 
 def print_map(horses):
     n, m = get_width_height()
-    for i in range(0, m):
+    for i in range(0, n):
         s = ''
-        for j in range(0, n):
+        for j in range(0, m):
             if Horse(i, j) in horses:
                 s += '#'
             else:

@@ -1,5 +1,7 @@
 from game_info import get_width_height, getStart, getGoal
 from horse import Horse
+
+
 def show_output(finalNode):
     n, m = get_width_height()
     print(str(n) + ' ' + str(m))
