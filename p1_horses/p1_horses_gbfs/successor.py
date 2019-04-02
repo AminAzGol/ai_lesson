@@ -23,7 +23,6 @@ def successor(father, m, n, goal):
                         new_child.horses.remove(h)
                         if check_for_treat(new_horse, new_child.horses):
                             new_child.horses.append(new_horse)
-                            new_child.horses.sort()
                             new_child.parent = father
                             if new_child not in childes:
                                     childes.append(new_child)

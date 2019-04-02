@@ -16,14 +16,8 @@ class Node:
         return str(self.horses)
 
     def __eq__(self, other):
-        """the lists must be sorted"""
-        for i in self.horses:
-            if i not in other.horses:
-                return False
-        return True
-        z = zip(self.horses, other.horses)
-        for i, j in z:
-            if i != j:
+        for h in self.horses:
+            if h not in other.horses:
                 return False
         return True
 

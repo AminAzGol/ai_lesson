@@ -3,9 +3,11 @@ def add_to_visited(node, visited):
     if not visited:
         visited.insert(0, node)
         return
-    if visited[len(visited) - 1].score < node.score:
-        visited.insert(len(visited) - 1, node)
-    elif visited[0].score > node.score:
+    last = visited[len(visited) - 1]
+    first = visited[0]
+    if last.score < node.score:
+        visited.append(node)
+    elif first.score > node.score:
         visited.insert(0, node)
     else:
         add_to_visited_rec(node, visited, 0, len(visited) - 1)
@@ -21,22 +23,24 @@ def add_to_visited_rec(node, visited, first, last):
     if visited[mid].score == node.score:
         visited.insert(mid, node)
     else:
-        add_to_visited_rec(node, visited, mid, last)
-        add_to_visited_rec(node, visited, first, mid)
+        if node.score < visited[mid].score:
+            add_to_visited_rec(node, visited, first, mid)
+        else:
+            add_to_visited_rec(node, visited, mid, last)
 
 
 def check_visited(node, visited):
-    for n in visited:
-        if node.score < n.score:
-            return False
-        elif node == n:
-            return True
-    return False
+    # for n in visited:
+    #     if node.score < n.score:
+    #         return False
+    #     elif node == n:
+    #         return True
+    # return False
     # check_repeat(visited)
-    # if not visited:
-    #     return False
-    # else:
-    #     return check_visited_rec(node, visited, 0, len(visited) - 1)
+    if not visited:
+        return False
+    else:
+        return check_visited_rec(node, visited, 0, len(visited) - 1)
 
 
 def check_visited_rec(node, visited, first, last):
@@ -52,15 +56,18 @@ def check_visited_rec(node, visited, first, last):
     if visited[mid] == node:
         return True
     else:
-        ret1 = check_visited_rec(node, visited, mid, last)
-        ret2 = check_visited_rec(node, visited, first, mid)
-        return ret1 or ret2
+        ret = False
+        if visited[mid].score <= node.score:
+            ret = check_visited_rec(node, visited, mid, last)
+        if visited[mid].score >= node.score and not ret:
+            ret = check_visited_rec(node, visited, first, mid)
+        return ret
 
 
 def check_repeat(l):
     for i in l:
+        a = 0
         for j in l:
-            a = 0
             if i == j:
                 a += 1
             if a == 2:
