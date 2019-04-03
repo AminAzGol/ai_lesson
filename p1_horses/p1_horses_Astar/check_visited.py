@@ -30,13 +30,6 @@ def add_to_visited_rec(node, visited, first, last):
 
 
 def check_visited(node, visited):
-    # for n in visited:
-    #     if node.score < n.score:
-    #         return False
-    #     elif node == n:
-    #         return True
-    # return False
-    # check_repeat(visited)
     if not visited:
         return False
     else:
