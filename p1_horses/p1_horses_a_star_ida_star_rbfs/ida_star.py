@@ -6,7 +6,7 @@ from bisect import bisect_left
 from check_visited import add_to_visited,check_visited
 
 
-def a_star():
+def ida_star():
     print("a_star started ...")
     start_node = getStart()
     start_node.calc_score()
@@ -43,7 +43,7 @@ def a_star():
 
 read_data_from_usr()
 tic = time()
-msg, finalNode = a_star()
+msg, finalNode = ida_star()
 if msg == 'failure':
     print("failure")
     exit()

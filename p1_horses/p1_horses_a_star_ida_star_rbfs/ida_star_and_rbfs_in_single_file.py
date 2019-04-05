@@ -1,61 +1,71 @@
 from time import time
+from math import inf
 
-
-def a_star():
-    print("a_star started ...")
+def ida_star():
+    print("ida_star started ...")
     start_node = getStart()
     start_node.calc_score()
     goal = getGoal()
     n, m = get_width_height()
     if start_node == goal:
         return 'found', start_node
-    fringe = [start_node]
-    visited = []
+    cuttoff = 4
     while 1:
-        if not fringe:
-            return 'failure', None
-        curr_node = fringe.pop(0)
-        if check_visited(curr_node, visited):
-            continue
-        if curr_node == goal:
-            print( len(visited) )
-            return 'found', curr_node
-        add_to_visited(curr_node, visited)
-        if len(visited) % 1000 == 0:
-            print(f"visited: {len(visited)}")
-            print(f"fringe: {len(fringe)}")
-        childes = successor(curr_node, n, m, goal)
-        for child in childes:
-            add_to_fringe(child, fringe)
+        min_cost = 1000000
+        visited = []
+        fringe = [start_node]
+        print(f"cuttoff: {cuttoff}")
+        while 1:
+            if not fringe:
+                cuttoff = min_cost
+                break
+            curr_node = fringe.pop(0)
+            if curr_node.cost > cuttoff:
+                if curr_node.cost < min_cost:
+                    min_cost = curr_node.cost
+                continue
+            if check_visited(curr_node, visited):
+                continue
+            if curr_node == goal:
+                return 'found', curr_node
+            add_to_visited(curr_node, visited)
+            if len(visited) % 1000 == 0:
+                print(f"visited: {len(visited)}")
+                print(f"fringe: {len(fringe)}")
+            childes = successor(curr_node, n, m, goal)
+            for child in childes:
+                fringe.insert(0, child)
 
 
-def gbfs():
-    print("gbfs started ...")
-    start_node = getStart()
-    start_node.calc_score()
+def recursive_best_first_search():
+    print("rbfs started...")
+    initial_node = getStart()
     goal = getGoal()
+    return rbfs(initial_node, goal, inf)
+
+
+def rbfs(node, goal, f_limit):
     n, m = get_width_height()
-    if start_node == goal:
-        return 'found', start_node
-    fringe = [start_node]
-    visited = []
+    if node == goal:
+        return 'found', node
+
+    childes = successor(node, n, m, goal)
+    if not childes:
+        return 'failure', inf
+    for child in childes:
+        child.cost = max(child.cost, node.cost)
     while 1:
-        if not fringe:
-            return 'failure', None
-        curr_node = fringe.pop(0)
-        if check_visited(curr_node, visited):
-            continue
-        if curr_node == goal:
-            print( len(visited) )
-            return 'found', curr_node
-        add_to_visited(curr_node, visited)
-        if len(visited) % 1000 == 0:
-            print(f"visited: {len(visited)}")
-            print(f"fringe: {len(fringe)}")
-        # visited.append(curr_node)
-        childes = successor(curr_node, n, m, goal)
-        for child in childes:
-            add_to_fringe(child, fringe)
+        def what_is_best(some_node):
+            return some_node.cost
+        childes.sort(key=what_is_best)
+        best = childes[0]
+        if best.cost > f_limit:
+            return 'failure', best.cost
+        alternative = childes[1]
+        result, node_or_new_cost = rbfs(best, goal, min(f_limit, alternative.cost))
+        if result != 'failure':
+            return result, node_or_new_cost
+        best.cost = node_or_new_cost
 
 
 def successor(father, m, n, goal):
@@ -84,20 +94,14 @@ def successor(father, m, n, goal):
                                 childes.append(new_child)
                                 new_child.calc_score()
                                 new_child.dept = new_child.parent.dept + 1
-                                if algo == '1':
-                                    new_child.cost = evaluation_gbfs(new_child, goal)
-                                else:
-                                    new_child.cost = evaluation_a_star(new_child, goal)
+                                new_child.cost = evaluation(new_child, goal)
 
     return childes
 
 
-def evaluation_a_star(node, goal):
+def evaluation(node, goal):
     return hirustic(node, goal) + node.parent.dept + 1
 
-
-def evaluation_gbfs(node, goal):
-    return hirustic(node, goal)
 
 def hirustic(node, goal):
     h = 0
@@ -255,11 +259,11 @@ h = None
 
 def read_data_from_usr():
     global w, h
-    algo = input("Select the algorithm: ( 1: GBFS | anything-else: A* ) \n")
+    algo = input("Select the algorithm: ( 1: IDA* | anything-else: RBFS ) \n")
     if algo == '1':
-        print("You have selected GBFS")
+        print("You have selected IDA*")
     else:
-        print("You have selected A*")
+        print("You have selected RBFS")
     try:
         a = input("give me the map \n")
         [width, height] = a.split(' ')
@@ -285,8 +289,11 @@ def read_data_from_usr():
 
     return algo
 
+
 def getStart():
     return Node(None, start_horses)
+
+
 def testStart():
     return Node(None, [
         Horse(0, 2),
@@ -405,9 +412,9 @@ algo = read_data_from_usr()
 msg, finalNode = None, None
 tic = time()
 if algo == '1':
-    msg, finalNode = gbfs()
+    msg, finalNode = ida_star()
 else:
-    msg, finalNode = a_star()
+    msg, finalNode = recursive_best_first_search()
 if msg == 'failure':
     print("failure")
     exit()
