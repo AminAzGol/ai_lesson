@@ -15,12 +15,13 @@ public class Successor {
         tempBoard =  board.clone();
         ArrayList<Pair<Board,Move>> childern = new ArrayList<>();
         Set<Position> jumps = player.getJumpPositions();
+        if(jumps.size() == 0)
+            System.out.printf("em");
         for (Position jump : jumps){
             tempBoard =  board.clone();
             tempBoard.getTurn().setPosition(jump);
             Jump move = new Jump(jump);
-            if (move.isLegal(board))
-                childern.add(new Pair<> (tempBoard,move));
+            childern.add(new Pair<> (tempBoard,move));
         }
         for (int i=0; i< board.getWidth() ; i++){
             for (int j=0; j <board.getHeight();j++){
