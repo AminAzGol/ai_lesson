@@ -19,7 +19,6 @@ public class Successor {
             System.out.printf("em");
         for (Position jump : jumps){
             tempBoard =  board.clone();
-            tempBoard.getTurn().setPosition(jump);
             Jump move = new Jump(jump);
             tempBoard.move(move);
             childern.add(new Pair<> (tempBoard,move));

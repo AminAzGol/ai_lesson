@@ -9,6 +9,7 @@ public class Node implements Comparable{
     public Board board;
     public Move move;
     public double cost;
+    public boolean isJump;
     public Node(Board board, Move move){
         this.board = board;
         this.move = move;

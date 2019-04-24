@@ -17,7 +17,6 @@ public class Eval {
 
         Orientation[] my_steps = me.findGoal();
         Orientation[] opponent_steps = opponent.findGoal();
-
-        return opponent_steps.length - my_steps.length;
+        return -10 * ( opponent_steps.length - my_steps.length);
     }
 }
