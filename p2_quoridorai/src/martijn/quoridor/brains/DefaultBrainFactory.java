@@ -16,6 +16,14 @@ public class DefaultBrainFactory implements BrainFactory {
 
 		brains.add(new DumbBrain());
 		brains.add(new MyBrain());
+		brains.add(createSmartBrain(2));
+		brains.add(createSmartBrain(3));
+		brains.add(createSmartBrain(4));
 	}
 
+	private Brain createSmartBrain(int i) {
+		NegamaxBrain b = new SmartBrain(i);
+		b.setDeterministic(false);
+		return b;
+	}
 }

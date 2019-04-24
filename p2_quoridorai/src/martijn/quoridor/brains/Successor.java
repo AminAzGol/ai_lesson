@@ -21,6 +21,7 @@ public class Successor {
             tempBoard =  board.clone();
             tempBoard.getTurn().setPosition(jump);
             Jump move = new Jump(jump);
+            tempBoard.move(move);
             childern.add(new Pair<> (tempBoard,move));
         }
         for (int i=0; i< board.getWidth() ; i++){
@@ -32,14 +33,17 @@ public class Successor {
                         tempBoard = board.clone();
                         tempBoard.setWall(position, Wall.HORIZONTAL);
                         PutWall move = new PutWall(position, Wall.HORIZONTAL);
-                        if (move.isLegal(board))
+                        if (move.isLegal(board)){
+                            tempBoard.move(move);
                             childern.add(new Pair<>(tempBoard, move));
+                        }
 
                         tempBoard = board.clone();
-                        tempBoard.setWall(position, Wall.VERTICAL);
                         move = new PutWall(position, Wall.VERTICAL);
-                        if(move.isLegal(board))
+                        if(move.isLegal(board)) {
+                            tempBoard.move(move);
                             childern.add(new Pair<>(tempBoard, move));
+                        }
                     }
                 }
             }

@@ -12,7 +12,7 @@ import java.util.PriorityQueue;
 public class MinMax {
     public Move getNextMove(Board board){
         Board tempBorad = board.clone();
-        int horizon = 1;
+        int horizon = 2;
         Node bestnode = min_max(tempBorad,false,horizon,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
         return bestnode.move;
     }
@@ -30,15 +30,15 @@ public class MinMax {
         else{
             for (int i = 0; i < childes.size(); i++) {
                 Node retval = min_max(childes.get(i).getKey(), !i_am_min, horizon - 1, alpha, beta);
-//                if(i_am_min && retval.cost < beta){
-//                    beta  = retval.cost;
-//                }
-//                else if (retval.cost > alpha){
-//                    alpha = retval.cost;
-//                }
-//                if (alpha > beta){
-//                    return retval;
-//                }
+                if(i_am_min && retval.cost < beta){
+                    beta  = retval.cost;
+                }
+                else if (retval.cost > alpha){
+                    alpha = retval.cost;
+                }
+                if (alpha > beta){
+                    return retval;
+                }
                 Node mychild = new Node(childes.get(i).getKey(),childes.get(i).getValue());
                 mychild.setCost(retval.cost);
                 queue.add(mychild);

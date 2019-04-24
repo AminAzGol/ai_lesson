@@ -8,14 +8,13 @@ public class Eval {
     public static int evaluate(Board board){
         Player[] players = board.getPlayers();
         Player me,opponent;
-        if ( players[0].isTurn() ) {
-            me = players[0];
-            opponent = players[1];
-        }
-        else {
-            me = players[1];
-            opponent = players[0];
-        }
+        me = players[board.getTurnIndex()];
+        opponent = players[1 - board.getTurnIndex()];
+        if(me.isWinner())
+            return (int)Double.POSITIVE_INFINITY;
+        else if(opponent.isWinner())
+            return (int)Double.NEGATIVE_INFINITY;
+
         Orientation[] my_steps = me.findGoal();
         Orientation[] opponent_steps = opponent.findGoal();
 
