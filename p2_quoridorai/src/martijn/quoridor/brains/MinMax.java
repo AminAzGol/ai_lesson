@@ -12,7 +12,7 @@ import java.util.PriorityQueue;
 public class MinMax {
     public Move getNextMove(Board board){
         Board tempBorad = board.clone();
-        int horizon = 1;
+        int horizon = 2;
         Node bestnode = min_max(tempBorad,false,horizon,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
         return bestnode.move;
     }
