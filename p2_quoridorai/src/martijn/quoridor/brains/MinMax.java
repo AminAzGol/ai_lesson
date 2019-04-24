@@ -2,6 +2,7 @@ package martijn.quoridor.brains;
 
 import javafx.util.Pair;
 import martijn.quoridor.model.Board;
+import martijn.quoridor.model.Jump;
 import martijn.quoridor.model.Move;
 
 import java.util.ArrayList;
@@ -23,13 +24,17 @@ public class MinMax {
         if( horizon == 0){
             for(int i =0 ; i < childes.size(); i++){
                 Node node = new Node(childes.get(i).getKey(), childes.get(i).getValue());
-                node.setCost(Eval.evaluate(node.board));
+                int cost = Eval.evaluate(node.board);
+                if (node.move instanceof Jump)
+                    cost++;
+                node.setCost(cost);
                 queue.add(node);
             }
         }
         else{
             for (int i = 0; i < childes.size(); i++) {
                 Node retval = min_max(childes.get(i).getKey(), !i_am_min, horizon - 1, alpha, beta);
+
                 if(i_am_min && retval.cost < beta){
                     beta  = retval.cost;
                 }
