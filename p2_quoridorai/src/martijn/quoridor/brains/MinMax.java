@@ -28,8 +28,12 @@ public class MinMax {
                     System.out.println("r");
                 }
                 int cost = Eval.evaluate(node.board);
-//                if (node.move instanceof Jump)
-//                    cost++;
+
+                if (node.move instanceof Jump)
+                    cost++;
+
+                node.setCost(cost);
+
 
                 if(i_am_min && cost < ret_node.cost){
                     ret_node = node;
@@ -37,34 +41,28 @@ public class MinMax {
                 else if(!i_am_min && ret_node.cost < cost){
                     ret_node = node;
                 }
-                node.setCost(cost);
             }
         }
         else{
             for (int i = 0; i < childes.size(); i++) {
                 Node retval = min_max(childes.get(i).board, !i_am_min, horizon - 1, alpha, beta);
+
+                Node mychild = childes.get(i);
+                mychild.setCost(retval.cost);
+
                 if(i_am_min && retval.cost < beta){
                     beta  = retval.cost;
+                    ret_node = mychild;
                 }
                 else if (!i_am_min && retval.cost > alpha){
                     alpha = retval.cost;
+                    ret_node = mychild;
                 }
                 if (alpha >= beta){
-                    return retval;
+                    return ret_node;
                 }
-                Node mychild = childes.get(i);
-                mychild.setCost(retval.cost);
-                queue.add(mychild);
             }
         }
-        if(queue.size() == 0)
-            System.out.printf("HI");
-        if (i_am_min){
-            return queue.get(0);
-        }
-        else{
-            return queue.get(queue.size() - 1);
-        }
-
+        return ret_node;
     }
 }
