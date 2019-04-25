@@ -16,6 +16,7 @@ public class DefaultBrainFactory implements BrainFactory {
 
 		brains.add(new DumbBrain());
 		brains.add(new MyBrain());
+		brains.add(new MyParrallelBrain());
 		brains.add(createSmartBrain(2));
 		brains.add(createSmartBrain(3));
 		brains.add(createSmartBrain(4));

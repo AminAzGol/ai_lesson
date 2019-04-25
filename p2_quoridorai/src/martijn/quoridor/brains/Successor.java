@@ -31,9 +31,7 @@ public class Successor {
                 if (tempBoard.containsWallPosition(position)) {
                     if (tempBoard.getWall(position) == null) {
                         tempBoard = board.clone();
-                        tempBoard.setWall(position, Wall.HORIZONTAL);
                         PutWall move = new PutWall(position, Wall.HORIZONTAL);
-//                        PutWall move = new PutWall(position, Wall.HORIZONTAL);
                         if (move.isLegal(board)){
                             tempBoard.move(move);
                             childern.add(new Node(tempBoard, move));

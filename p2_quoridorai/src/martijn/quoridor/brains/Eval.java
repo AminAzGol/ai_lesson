@@ -16,6 +16,8 @@ public class Eval {
             return Double.NEGATIVE_INFINITY;
         Orientation[] my_steps = me.findGoal();
         Orientation[] opponent_steps = opponent.findGoal();
+        if(my_steps == null || opponent_steps == null)
+            System.out.println("nule nule");
         return opponent_steps.length - my_steps.length;
     }
 }

@@ -7,22 +7,27 @@ import martijn.quoridor.model.Player;
 
 import java.util.ArrayList;
 
-public class MinMax {
+public class MinMax2 {
     public int turn;
+    private Successor2 successor;
+    public MinMax2(){
+        successor = new Successor2();
+    }
     public Move getNextMove(Board board){
         Board tempBorad = board.clone();
-        int horizon = 2;
+        int horizon = 3;
         turn = board.getTurnIndex();
         Node bestnode = min_max(tempBorad,false,horizon,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
         return bestnode.move;
     }
     public Node min_max(Board board, Boolean i_am_min, int horizon, double alpha, double beta){
-        ArrayList<Node> childes = Successor.successor(board);
-        ArrayList<Node> queue = new ArrayList<>();
-        Node ret_node = childes.get(0);
+        Node[] childes = successor.successormethod(board);
+        Node ret_node = childes[0];
         if( horizon == 0){
-            for(int i =0 ; i < childes.size(); i++){
-                Node node = new Node(childes.get(i).board, childes.get(i).move);
+            for(int i =0 ; i < childes.length; i++){
+                if(childes[i] == null)
+                    continue;
+                Node node = new Node(childes[i].board, childes[i].move);
                 double cost = Eval.evaluate(node.board, turn);
                 if (node.move instanceof Jump)
                     cost++;
@@ -36,10 +41,12 @@ public class MinMax {
             }
         }
         else{
-            for (int i = 0; i < childes.size(); i++) {
-                Node mychild = childes.get(i);
+            for (int i = 0; i < childes.length; i++) {
+                if(childes[i] == null)
+                    continue;
+                Node mychild = childes[i];
                 if(!check_winner(mychild,turn)) {
-                    Node retval = min_max(childes.get(i).board, !i_am_min, horizon - 1, alpha, beta);
+                    Node retval = min_max(childes[i].board, !i_am_min, horizon - 1, alpha, beta);
                     mychild.setCost(retval.cost);
                 }
                 if(i_am_min && mychild.cost < beta){

@@ -12,3 +12,11 @@ public class MyBrain extends Brain {
         return minmax.getNextMove(board);
     }
 }
+class MyParrallelBrain extends Brain {
+
+    @Override
+    public Move getMove(Board board) throws InterruptedException {
+        MinMax2 minmax = new MinMax2();
+        return minmax.getNextMove(board);
+    }
+}
