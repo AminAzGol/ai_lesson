@@ -18,38 +18,45 @@ public class MinMax {
         return bestnode.move;
     }
     public Node min_max(Board board, Boolean i_am_min, int horizon, double alpha, double beta){
-        ArrayList<Pair<Board,Move>> childes = Successor.successor(board);
+        ArrayList<Node> childes = Successor.successor(board);
         ArrayList<Node> queue = new ArrayList<>();
-
+        Node ret_node = childes.get(0);
         if( horizon == 0){
             for(int i =0 ; i < childes.size(); i++){
-                Node node = new Node(childes.get(i).getKey(), childes.get(i).getValue());
+                Node node = new Node(childes.get(i).board, childes.get(i).move);
+                if(node.board.getHistory().size() == 2){
+                    System.out.println("r");
+                }
                 int cost = Eval.evaluate(node.board);
-                if (node.move instanceof Jump)
-                    cost++;
+//                if (node.move instanceof Jump)
+//                    cost++;
+
+                if(i_am_min && cost < ret_node.cost){
+                    ret_node = node;
+                }
+                else if(!i_am_min && ret_node.cost < cost){
+                    ret_node = node;
+                }
                 node.setCost(cost);
-                queue.add(node);
             }
         }
         else{
             for (int i = 0; i < childes.size(); i++) {
-                Node retval = min_max(childes.get(i).getKey(), !i_am_min, horizon - 1, alpha, beta);
-
+                Node retval = min_max(childes.get(i).board, !i_am_min, horizon - 1, alpha, beta);
                 if(i_am_min && retval.cost < beta){
                     beta  = retval.cost;
                 }
-                else if (retval.cost > alpha){
+                else if (!i_am_min && retval.cost > alpha){
                     alpha = retval.cost;
                 }
-                if (alpha > beta){
+                if (alpha >= beta){
                     return retval;
                 }
-                Node mychild = new Node(childes.get(i).getKey(),childes.get(i).getValue());
+                Node mychild = childes.get(i);
                 mychild.setCost(retval.cost);
                 queue.add(mychild);
             }
         }
-        Collections.sort(queue, new Node_Comparator());
         if(queue.size() == 0)
             System.out.printf("HI");
         if (i_am_min){

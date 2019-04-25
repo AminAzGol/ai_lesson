@@ -27,9 +27,3 @@ public class Node implements Comparable{
     }
 
 }
-class Node_Comparator implements Comparator<Node> {
-    public int compare(Node n1, Node n2)
-    {
-        return (int) (n1.cost * 1000 - n2.cost * 1000);
-    }
-}
