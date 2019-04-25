@@ -4,6 +4,7 @@ import javafx.util.Pair;
 import martijn.quoridor.model.Board;
 import martijn.quoridor.model.Jump;
 import martijn.quoridor.model.Move;
+import martijn.quoridor.model.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,9 +46,12 @@ public class MinMax {
         }
         else{
             for (int i = 0; i < childes.size(); i++) {
-                Node retval = min_max(childes.get(i).board, !i_am_min, horizon - 1, alpha, beta);
-
                 Node mychild = childes.get(i);
+
+                if(check_winner(mychild))
+                    return mychild;
+
+                Node retval = min_max(childes.get(i).board, !i_am_min, horizon - 1, alpha, beta);
                 mychild.setCost(retval.cost);
 
                 if(i_am_min && retval.cost < beta){
@@ -64,5 +68,21 @@ public class MinMax {
             }
         }
         return ret_node;
+    }
+    boolean check_winner(Node node){
+        Board board = node.board;
+        Player[] players = board.getPlayers();
+        Player me,opponent;
+        me = players[1 - board.getTurnIndex()];
+        opponent = players[board.getTurnIndex()];
+        if(me.isWinner()){
+            node.cost = (int)Double.POSITIVE_INFINITY;
+            return true;
+        }
+        else if(opponent.isWinner()){
+            node.cost = (int)Double.NEGATIVE_INFINITY;
+            return true;
+        }
+        return false;
     }
 }
