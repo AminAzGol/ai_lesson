@@ -12,9 +12,11 @@ import java.util.Collections;
 import java.util.PriorityQueue;
 
 public class MinMax {
+    public int turn;
     public Move getNextMove(Board board){
         Board tempBorad = board.clone();
         int horizon = 2;
+        turn = board.getTurnIndex();
         Node bestnode = min_max(tempBorad,false,horizon,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
         return bestnode.move;
     }
@@ -25,17 +27,10 @@ public class MinMax {
         if( horizon == 0){
             for(int i =0 ; i < childes.size(); i++){
                 Node node = new Node(childes.get(i).board, childes.get(i).move);
-                if(node.board.getHistory().size() == 2){
-                    System.out.println("r");
-                }
-                int cost = Eval.evaluate(node.board);
-
+                double cost = Eval.evaluate(node.board, turn);
                 if (node.move instanceof Jump)
                     cost++;
-
                 node.setCost(cost);
-
-
                 if(i_am_min && cost < ret_node.cost){
                     ret_node = node;
                 }
@@ -47,19 +42,16 @@ public class MinMax {
         else{
             for (int i = 0; i < childes.size(); i++) {
                 Node mychild = childes.get(i);
-
-                if(check_winner(mychild))
-                    return mychild;
-
-                Node retval = min_max(childes.get(i).board, !i_am_min, horizon - 1, alpha, beta);
-                mychild.setCost(retval.cost);
-
-                if(i_am_min && retval.cost < beta){
-                    beta  = retval.cost;
+                if(!check_winner(mychild,turn)) {
+                    Node retval = min_max(childes.get(i).board, !i_am_min, horizon - 1, alpha, beta);
+                    mychild.setCost(retval.cost);
+                }
+                if(i_am_min && mychild.cost < beta){
+                    beta  = mychild.cost;
                     ret_node = mychild;
                 }
-                else if (!i_am_min && retval.cost > alpha){
-                    alpha = retval.cost;
+                else if (!i_am_min && mychild.cost > alpha){
+                    alpha = mychild.cost;
                     ret_node = mychild;
                 }
                 if (alpha >= beta){
@@ -69,18 +61,18 @@ public class MinMax {
         }
         return ret_node;
     }
-    boolean check_winner(Node node){
+    boolean check_winner(Node node,int turn){
         Board board = node.board;
         Player[] players = board.getPlayers();
         Player me,opponent;
-        me = players[1 - board.getTurnIndex()];
-        opponent = players[board.getTurnIndex()];
+        me = players[turn];
+        opponent = players[1 - turn];
         if(me.isWinner()){
-            node.cost = (int)Double.POSITIVE_INFINITY;
+            node.cost = Double.POSITIVE_INFINITY;
             return true;
         }
         else if(opponent.isWinner()){
-            node.cost = (int)Double.NEGATIVE_INFINITY;
+            node.cost = Double.NEGATIVE_INFINITY;
             return true;
         }
         return false;

@@ -5,21 +5,15 @@ import martijn.quoridor.model.Orientation;
 import martijn.quoridor.model.Player;
 
 public class Eval {
-    public static int evaluate(Board board){
+    public static double evaluate(Board board, int turn){
         Player[] players = board.getPlayers();
         Player me,opponent;
-        me = players[1 - board.getTurnIndex()];
-        opponent = players[board.getTurnIndex()];
+        me = players[turn];
+        opponent = players[1- turn];
         if(me.isWinner())
-            return (int)Double.POSITIVE_INFINITY;
+            return Double.POSITIVE_INFINITY;
         else if(opponent.isWinner())
-            return (int)Double.NEGATIVE_INFINITY;
-
-
-        if(board.getHistory().size() == 2){
-            System.out.println("r");
-        }
-
+            return Double.NEGATIVE_INFINITY;
         Orientation[] my_steps = me.findGoal();
         Orientation[] opponent_steps = opponent.findGoal();
         return opponent_steps.length - my_steps.length;
