@@ -125,6 +125,7 @@ public abstract class Controller implements BoardListener {
 
 	protected void move(Move move) {
 		expecting = false;
+		System.out.println(move);
 		getBoard().move(move);
 	}
 

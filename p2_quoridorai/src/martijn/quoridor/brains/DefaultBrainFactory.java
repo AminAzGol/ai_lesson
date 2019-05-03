@@ -15,7 +15,9 @@ public class DefaultBrainFactory implements BrainFactory {
 	public void addBrains(List<Brain> brains) {
 
 		brains.add(new DumbBrain());
-		brains.add(new MyBrain());
+		brains.add(new Boz_Brain());
+		brains.add(new Jeniale());
+		brains.add(new MostafaBrain());
 		brains.add(createSmartBrain(2));
 		brains.add(createSmartBrain(3));
 		brains.add(createSmartBrain(4));
