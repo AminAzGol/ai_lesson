@@ -25,11 +25,21 @@ public class MinMax {
         ArrayList<Node> childes = Successor.successor(board);
         ArrayList<Node> queue = new ArrayList<>();
         Node ret_node = childes.get(0);
+        if(i_am_min)
+            ret_node.cost = Double.POSITIVE_INFINITY;
+        else
+            ret_node.cost = Double.NEGATIVE_INFINITY;
         if( horizon == 0){
             for(int i =0 ; i < childes.size(); i++){
                 Node node = new Node(childes.get(i).board, childes.get(i).move);
+                double cost;
+                if(node.board.getPlayers()[1-turn].findGoal().length == 1){
+                    cost = Double.NEGATIVE_INFINITY;
+                }
+                else{
 
-                double cost = Eval.evaluate(node, turn);
+                    cost = Eval.evaluate(node, turn);
+                }
 
                 node.setCost(cost);
                 if(i_am_min && cost < ret_node.cost){
