@@ -26,13 +26,12 @@ class Successor {
         tempBoard.move(new Jump(player.stepToGoal()));
         childern.add(new Node(tempBoard,new Jump(player.stepToGoal())));
 
-        for (int i=1; i< board.getWidth() ; i++){
-            for (int j=1; j <board.getHeight();j++){
+        for (int i=0; i< board.getWidth() ; i++){
+            for (int j=0; j <board.getHeight();j++){
                 Position position = new Position(j,i);
                 if (tempBoard.containsWallPosition(position)) {
                     if (tempBoard.getWall(position) == null) {
                         tempBoard = board.clone();
-                        tempBoard.setWall(position, Wall.HORIZONTAL);
                         PutWall move = new PutWall(position, Wall.HORIZONTAL);
                         if (move.isLegal(board)){
                             tempBoard.move(move);
@@ -119,24 +118,15 @@ class MinMax {
         return bestnode.move;
     }
     public Node min_max(Board board, Boolean i_am_min, int horizon, double alpha, double beta){
-        ArrayList<Node> childes = Successor.successor(board);
+        ArrayList<Node> childes = succ2(board);
         ArrayList<Node> queue = new ArrayList<>();
         Node ret_node = childes.get(0);
-        if(i_am_min)
-            ret_node.cost = Double.POSITIVE_INFINITY;
-        else
-            ret_node.cost = Double.NEGATIVE_INFINITY;
         if( horizon == 0){
             for(int i =0 ; i < childes.size(); i++){
                 Node node = new Node(childes.get(i).board, childes.get(i).move);
                 double cost;
-                if(node.board.getPlayers()[1-turn].findGoal().length == 1){
-                    cost = Double.NEGATIVE_INFINITY;
-                }
-                else{
-
                     cost = Eval.evaluate(node, turn);
-                }
+
 
                 node.setCost(cost);
                 if(i_am_min && cost < ret_node.cost){
@@ -165,9 +155,9 @@ class MinMax {
                 if (alpha >= beta){
                     return ret_node;
                 }
-                if(System.currentTimeMillis() - timer > 4990){
-                    return ret_node;
-                }
+//                if(System.currentTimeMillis() - timer > 4990){
+//                    return ret_node;
+//                }
             }
         }
         return ret_node;
@@ -187,5 +177,48 @@ class MinMax {
             return true;
         }
         return false;
+    }
+
+    public ArrayList<Node> succ2(Board board){
+        Player player = board.getTurn();
+        Board tempBoard ;
+        ArrayList<Node>  childern = new ArrayList<>();
+        Set<Position> jumps = player.getJumpPositions();
+        tempBoard =  board.clone();
+        tempBoard.move(new Jump(player.stepToGoal()));
+        childern.add(new Node(tempBoard,new Jump(player.stepToGoal())));
+        Player players[] = board.getPlayers();
+        int player_range = 1;
+        int wall_range = 1;
+        ArrayList<Move>  moves = new ArrayList<>();
+        for(int i = 0; i < players.length; i++){
+            Player plr = players[i];
+            for(int x = plr.getPosition().getX() -player_range; x < plr.getPosition().getX() + player_range; x++){
+                for(int y = plr.getPosition().getY() - player_range; y < plr.getPosition().getY() + player_range; y++){
+                    Position position = new Position(x,y);
+                    if (tempBoard.containsWallPosition(position)) {
+                        if (tempBoard.getWall(position) == null) {
+                            PutWall move = new PutWall(position, Wall.HORIZONTAL);
+                            if (move.isLegal(board)){
+                                moves.add(move);
+                            }
+                            move = new PutWall(position, Wall.VERTICAL);
+                            if(move.isLegal(board)) {
+                                moves.add(move);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for(int i=0;i<moves.size();i++){
+            Board tboard = board.clone();
+            tboard.move(moves.get(i));
+            childern.add(new Node(tboard,moves.get(i)));
+        }
+        if (childern.size() == 0)
+            System.out.println("here");
+        return childern;
+
     }
 }

@@ -33,6 +33,7 @@ public class SmartBrain extends NegamaxBrain {
         moves.add(new Jump(p.stepToGoal()));
 
         // Add PutWalls.
+        //TODO:
         if (p.getWallCount() > 0) {
             PositionSet set = new PositionSet(board.getWidth() + 1, board
                     .getHeight() + 1);
