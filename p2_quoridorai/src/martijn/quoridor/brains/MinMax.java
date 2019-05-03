@@ -7,17 +7,18 @@ import martijn.quoridor.model.Move;
 import martijn.quoridor.model.Player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.PriorityQueue;
+import java.util.Timer;
 
 public class MinMax {
     public int turn;
+    public long timer;
     public Move getNextMove(Board board){
         Board tempBorad = board.clone();
         int horizon = 2;
         turn = board.getTurnIndex();
+        timer = System.currentTimeMillis();
         Node bestnode = min_max(tempBorad,false,horizon,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
+        System.out.println(System.currentTimeMillis() - timer);
         return bestnode.move;
     }
     public Node min_max(Board board, Boolean i_am_min, int horizon, double alpha, double beta){
@@ -27,9 +28,9 @@ public class MinMax {
         if( horizon == 0){
             for(int i =0 ; i < childes.size(); i++){
                 Node node = new Node(childes.get(i).board, childes.get(i).move);
-                double cost = Eval.evaluate(node.board, turn);
-                if (node.move instanceof Jump)
-                    cost++;
+
+                double cost = Eval.evaluate(node, turn);
+
                 node.setCost(cost);
                 if(i_am_min && cost < ret_node.cost){
                     ret_node = node;
@@ -55,6 +56,9 @@ public class MinMax {
                     ret_node = mychild;
                 }
                 if (alpha >= beta){
+                    return ret_node;
+                }
+                if(System.currentTimeMillis() - timer > 4990){
                     return ret_node;
                 }
             }

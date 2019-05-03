@@ -1,11 +1,10 @@
 package martijn.quoridor.brains;
 
-import martijn.quoridor.model.Board;
-import martijn.quoridor.model.Orientation;
-import martijn.quoridor.model.Player;
+import martijn.quoridor.model.*;
 
 public class Eval {
-    public static double evaluate(Board board, int turn){
+    public static double evaluate(Node node, int turn){
+        Board board = node.board;
         Player[] players = board.getPlayers();
         Player me,opponent;
         me = players[turn];
@@ -16,6 +15,12 @@ public class Eval {
             return Double.NEGATIVE_INFINITY;
         Orientation[] my_steps = me.findGoal();
         Orientation[] opponent_steps = opponent.findGoal();
-        return opponent_steps.length - my_steps.length;
+        double cost= opponent_steps.length - my_steps.length;
+        if (node.move instanceof Jump && opponent.getWallCount() != 1)
+            cost++;
+        if(opponent.getWallCount() == 1 && node.move instanceof PutWall)
+            cost++;
+
+        return cost;
     }
 }
