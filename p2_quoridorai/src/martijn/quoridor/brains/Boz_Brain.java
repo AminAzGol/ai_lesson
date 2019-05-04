@@ -7,10 +7,10 @@ import java.util.Set;
 import java.util.Timer;
 
 public class Boz_Brain extends Brain {
-    MinMax minmax = new MinMax();
+
     @Override
     public Move getMove(Board board) throws InterruptedException {
-
+        MinMax minmax = new MinMax();
         return minmax.getNextMove(board);
     }
 }
@@ -26,12 +26,13 @@ class Successor {
         tempBoard.move(new Jump(player.stepToGoal()));
         childern.add(new Node(tempBoard,new Jump(player.stepToGoal())));
 
-        for (int i=0; i< board.getWidth() ; i++){
-            for (int j=0; j <board.getHeight();j++){
+        for (int i=1; i< board.getWidth() ; i++){
+            for (int j=1; j <board.getHeight();j++){
                 Position position = new Position(j,i);
                 if (tempBoard.containsWallPosition(position)) {
                     if (tempBoard.getWall(position) == null) {
                         tempBoard = board.clone();
+                        tempBoard.setWall(position, Wall.HORIZONTAL);
                         PutWall move = new PutWall(position, Wall.HORIZONTAL);
                         if (move.isLegal(board)){
                             tempBoard.move(move);
@@ -57,7 +58,7 @@ class Successor {
 }
 
 
-class Node{
+class Node implements Comparable{
     public Board board;
     public Move move;
     public double cost;
@@ -68,6 +69,14 @@ class Node{
     }
     public void setCost(double cost){
         this.cost  = cost;
+    }
+
+    public int compareTo(Object o) {
+        Node node =(Node)o;
+        if(this.cost  > node.cost)
+            return 1;
+        else
+            return 0;
     }
 
 }
@@ -87,9 +96,9 @@ class Eval {
         Orientation[] my_steps = me.findGoal();
         Orientation[] opponent_steps = opponent.findGoal();
         double cost= opponent_steps.length - my_steps.length;
-        if (node.move instanceof Jump && opponent.getWallCount() > 1)
+        if (node.move instanceof Jump && opponent.getWallCount() != 1)
             cost++;
-        if(opponent.getWallCount() <= 1 && node.move instanceof PutWall)
+        if(opponent.getWallCount() == 1 && node.move instanceof PutWall)
             cost++;
 
         return cost;
@@ -108,10 +117,6 @@ class MinMax {
         timer = System.currentTimeMillis();
         Node bestnode = min_max(tempBorad,false,horizon,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
         System.out.println(System.currentTimeMillis() - timer);
-        if(System.currentTimeMillis() - timer < 1000){
-            if(the_horizon < 5)
-                the_horizon++;
-        }
         return bestnode.move;
     }
     public Node min_max(Board board, Boolean i_am_min, int horizon, double alpha, double beta){
@@ -147,9 +152,7 @@ class MinMax {
             for (int i = 0; i < childes.size(); i++) {
                 Node mychild = childes.get(i);
                 if(horizon == the_horizon){
-                    if(childes.size() <=70)
-                        the_horizon = 3;
-                    System.out.println("SIZE: "+childes.size() + " I: " + i +" H: "+horizon);
+                    System.out.println("size: "+childes.size() + " i: "+i);
                 }
                 if(!check_winner(mychild,turn)) {
                     Node retval = min_max(childes.get(i).board, !i_am_min, horizon - 1, alpha, beta);
@@ -167,13 +170,8 @@ class MinMax {
                     return ret_node;
                 }
                 if(System.currentTimeMillis() - timer > 4990){
-                    if(horizon == the_horizon)
-                        if(the_horizon > 2){
-                            the_horizon--;
-                        }
                     return ret_node;
                 }
-
             }
         }
         return ret_node;
@@ -194,94 +192,7 @@ class MinMax {
         }
         return false;
     }
-
-    public ArrayList<Node> succ2(Board board){
-        Player player = board.getTurn();
-        Board tempBoard ;
-        ArrayList<Node>  childern = new ArrayList<>();
-        Set<Position> jumps = player.getJumpPositions();
-        tempBoard =  board.clone();
-        tempBoard.move(new Jump(player.stepToGoal()));
-        childern.add(new Node(tempBoard,new Jump(player.stepToGoal())));
-        Player players[] = board.getPlayers();
-        int player_range = 1;
-        int wall_range = 1;
-        ArrayList<Move>  moves = new ArrayList<>();
-        boolean count_the_walls = false;
-        boolean count_the_walls_2 = true;
-        boolean count_player_seek_goal = false;
-        for(int i = 0; i < players.length; i++){
-            Player plr = players[i];
-            for(int x = plr.getPosition().getX() -player_range; x < plr.getPosition().getX() + player_range; x++){
-                for(int y = plr.getPosition().getY() - player_range; y < plr.getPosition().getY() + player_range; y++){
-                    Position position = new Position(x,y);
-                    if (tempBoard.containsWallPosition(position)) {
-                        if (tempBoard.getWall(position) == null) {
-                            PutWall move = new PutWall(position, Wall.HORIZONTAL);
-                            moves.add(move);
-                            move = new PutWall(position, Wall.VERTICAL);
-                            moves.add(move);
-                        }
-                    }
-                }
-            }
-        }
-        if(count_player_seek_goal){
-
-        for(int i = 0; i < players.length; i++){
-            Position pos= players[i].getPosition();
-            for(Orientation o : players[i].findGoal()){
-                pos = pos.move(o);
-                moves.add(new PutWall(pos.south(), Wall.HORIZONTAL));
-                moves.add(new PutWall(pos.south(), Wall.VERTICAL));
-
-                moves.add(new PutWall(pos.north(), Wall.HORIZONTAL));
-                moves.add(new PutWall(pos.north(), Wall.VERTICAL));
-
-                moves.add(new PutWall(pos.west(), Wall.HORIZONTAL));
-                moves.add(new PutWall(pos.west(), Wall.VERTICAL));
-
-                moves.add(new PutWall(pos.east(), Wall.HORIZONTAL));
-                moves.add(new PutWall(pos.east(), Wall.VERTICAL));
-            }
-        }
-        }
-
-        if(count_the_walls){
-        for (int x = 0; x < board.getWidth() - 1; x++) {
-            for (int y = 0; y < board.getHeight() - 1; y++) {
-                Position pos = new Position(x, y);
-                if (board.getWall(pos) != null) {
-                    pos = pos.south().west();
-                    moves.add(new PutWall(pos.south(), Wall.HORIZONTAL));
-                    moves.add(new PutWall(pos.south(), Wall.VERTICAL));
-
-                    moves.add(new PutWall(pos.north(), Wall.HORIZONTAL));
-                    moves.add(new PutWall(pos.north(), Wall.VERTICAL));
-
-                    moves.add(new PutWall(pos.west(), Wall.HORIZONTAL));
-                    moves.add(new PutWall(pos.west(), Wall.VERTICAL));
-
-                    moves.add(new PutWall(pos.east(), Wall.HORIZONTAL));
-                    moves.add(new PutWall(pos.east(), Wall.VERTICAL));
-
-                }
-            }
-
-        }
-        }
-        if(count_the_walls_2){
-            count_wall_2(moves,board,childern);
-        }
-        /*remove tekrari*/
-//        add_childes(moves,board,childern);
-        if (childern.size() == 0)
-            System.out.println("here");
-        return childern;
-
-    }
-    public void count_wall_2(ArrayList<Move> moves, Board board,ArrayList<Node> children){
-        Wall walls[][] = new Wall[board.getWidth() - 1][board.getHeight() - 1];
+    public void count_wall_2(ArrayList<Move> moves, Board board,ArrayList<Node> children,Wall[][] walls){
         for (int x = 0; x < board.getWidth() - 1; x++) {
             for (int y = 0; y < board.getHeight() - 1; y++) {
                 Position pos = new Position(x, y);
@@ -323,25 +234,6 @@ class MinMax {
 
         }
     }
-    public void add_childes(ArrayList<Move> moves, Board board, ArrayList<Node> childern){
-        Wall walls[][] = new Wall[board.getWidth() - 1][board.getHeight() - 1];
-        Board check_board = board.clone();
-        for(int i=0;i<moves.size();i++){
-            if (moves.get(i).isLegal(check_board)) {
-                if(moves.get(i) instanceof PutWall){
-                    Wall wall = ((PutWall) moves.get(i)).getWall();
-                    Position pos = ((PutWall) moves.get(i)).getPosition();
-                    if(walls[pos.getX()][pos.getY()] != wall)
-                        walls[pos.getX()][pos.getY()] = wall;
-                    else
-                        continue;
-                }
-                Board tboard = board.clone();
-                tboard.move(moves.get(i));
-                childern.add(new Node(tboard, moves.get(i)));
-            }
-        }
-    }
     public void check_and_insert(Move move,ArrayList<Node> children,Wall[][] walls,Board board){
         if (move.isLegal(board)) {
             if (move instanceof PutWall) {
@@ -356,6 +248,40 @@ class MinMax {
                     return;
             }
         }
+
+    }
+    public ArrayList<Node> succ2(Board board){
+        Player player = board.getTurn();
+        Board tempBoard ;
+        ArrayList<Node>  childern = new ArrayList<>();
+        tempBoard =  board.clone();
+        tempBoard.move(new Jump(player.stepToGoal()));
+        childern.add(new Node(tempBoard,new Jump(player.stepToGoal())));
+        Player players[] = board.getPlayers();
+        int player_range = 1;
+        ArrayList<Move>  moves = new ArrayList<>();
+        boolean count_the_walls_2 = true;
+        Wall walls[][] = new Wall[board.getWidth() - 1][board.getHeight() - 1];
+        for(int i = 0; i < players.length; i++){
+            Player plr = players[i];
+            for(int x = plr.getPosition().getX() -player_range; x < plr.getPosition().getX() + player_range; x++){
+                for(int y = plr.getPosition().getY() - player_range; y < plr.getPosition().getY() + player_range; y++){
+                    Position position = new Position(x,y);
+                    if (tempBoard.containsWallPosition(position)) {
+                        if (tempBoard.getWall(position) == null) {
+                            check_and_insert(new PutWall(position, Wall.HORIZONTAL),childern,walls,board);
+                            check_and_insert(new PutWall(position, Wall.VERTICAL),childern,walls,board);
+                        }
+                    }
+                }
+            }
+        }
+        if(count_the_walls_2){
+            count_wall_2(moves,board,childern,walls);
+        }
+        if (childern.size() == 0)
+            System.out.println("here");
+        return childern;
 
     }
 }
