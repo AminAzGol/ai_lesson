@@ -7,10 +7,10 @@ import java.util.Set;
 import java.util.Timer;
 
 public class Boz_Brain extends Brain {
-
+    MinMax minmax = new MinMax();
     @Override
     public Move getMove(Board board) throws InterruptedException {
-        MinMax minmax = new MinMax();
+
         return minmax.getNextMove(board);
     }
 }
@@ -57,7 +57,7 @@ class Successor {
 }
 
 
-class Node implements Comparable{
+class Node{
     public Board board;
     public Move move;
     public double cost;
@@ -68,14 +68,6 @@ class Node implements Comparable{
     }
     public void setCost(double cost){
         this.cost  = cost;
-    }
-
-    public int compareTo(Object o) {
-        Node node =(Node)o;
-        if(this.cost  > node.cost)
-            return 1;
-        else
-            return 0;
     }
 
 }
@@ -95,9 +87,9 @@ class Eval {
         Orientation[] my_steps = me.findGoal();
         Orientation[] opponent_steps = opponent.findGoal();
         double cost= opponent_steps.length - my_steps.length;
-        if (node.move instanceof Jump && opponent.getWallCount() != 1)
+        if (node.move instanceof Jump && opponent.getWallCount() > 1)
             cost++;
-        if(opponent.getWallCount() == 1 && node.move instanceof PutWall)
+        if(opponent.getWallCount() <= 1 && node.move instanceof PutWall)
             cost++;
 
         return cost;
@@ -108,13 +100,18 @@ class Eval {
 class MinMax {
     public int turn;
     public long timer;
+    public int the_horizon = 2;
     public Move getNextMove(Board board){
         Board tempBorad = board.clone();
-        int horizon = 2;
+        int horizon = the_horizon;
         turn = board.getTurnIndex();
         timer = System.currentTimeMillis();
         Node bestnode = min_max(tempBorad,false,horizon,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
         System.out.println(System.currentTimeMillis() - timer);
+        if(System.currentTimeMillis() - timer < 1000){
+            if(the_horizon < 3)
+                the_horizon++;
+        }
         return bestnode.move;
     }
     public Node min_max(Board board, Boolean i_am_min, int horizon, double alpha, double beta){
@@ -126,8 +123,6 @@ class MinMax {
                 Node node = new Node(childes.get(i).board, childes.get(i).move);
                 double cost;
                     cost = Eval.evaluate(node, turn);
-
-
                 node.setCost(cost);
                 if(i_am_min && cost < ret_node.cost){
                     ret_node = node;
@@ -140,6 +135,11 @@ class MinMax {
         else{
             for (int i = 0; i < childes.size(); i++) {
                 Node mychild = childes.get(i);
+                if(horizon == the_horizon){
+                    if(childes.size() <=70)
+                        the_horizon = 3;
+                    System.out.println("SIZE: "+childes.size() + " I: " + i +" H: "+horizon);
+                }
                 if(!check_winner(mychild,turn)) {
                     Node retval = min_max(childes.get(i).board, !i_am_min, horizon - 1, alpha, beta);
                     mychild.setCost(retval.cost);
@@ -155,9 +155,14 @@ class MinMax {
                 if (alpha >= beta){
                     return ret_node;
                 }
-//                if(System.currentTimeMillis() - timer > 4990){
-//                    return ret_node;
-//                }
+                if(System.currentTimeMillis() - timer > 4990){
+                    if(horizon == the_horizon)
+                        if(the_horizon > 2){
+                            the_horizon--;
+                        }
+                    return ret_node;
+                }
+
             }
         }
         return ret_node;
@@ -188,9 +193,12 @@ class MinMax {
         tempBoard.move(new Jump(player.stepToGoal()));
         childern.add(new Node(tempBoard,new Jump(player.stepToGoal())));
         Player players[] = board.getPlayers();
-        int player_range = 1;
+        int player_range = 2;
         int wall_range = 1;
         ArrayList<Move>  moves = new ArrayList<>();
+        boolean count_the_walls = false;
+        boolean count_the_walls_2 = true;
+        boolean count_player_seek_goal = false;
         for(int i = 0; i < players.length; i++){
             Player plr = players[i];
             for(int x = plr.getPosition().getX() -player_range; x < plr.getPosition().getX() + player_range; x++){
@@ -199,22 +207,111 @@ class MinMax {
                     if (tempBoard.containsWallPosition(position)) {
                         if (tempBoard.getWall(position) == null) {
                             PutWall move = new PutWall(position, Wall.HORIZONTAL);
-                            if (move.isLegal(board)){
-                                moves.add(move);
-                            }
+                            moves.add(move);
                             move = new PutWall(position, Wall.VERTICAL);
-                            if(move.isLegal(board)) {
-                                moves.add(move);
-                            }
+                            moves.add(move);
                         }
                     }
                 }
             }
         }
+        if(count_player_seek_goal){
+
+        for(int i = 0; i < players.length; i++){
+            Position pos= players[i].getPosition();
+            for(Orientation o : players[i].findGoal()){
+                pos = pos.move(o);
+                moves.add(new PutWall(pos.south(), Wall.HORIZONTAL));
+                moves.add(new PutWall(pos.south(), Wall.VERTICAL));
+
+                moves.add(new PutWall(pos.north(), Wall.HORIZONTAL));
+                moves.add(new PutWall(pos.north(), Wall.VERTICAL));
+
+                moves.add(new PutWall(pos.west(), Wall.HORIZONTAL));
+                moves.add(new PutWall(pos.west(), Wall.VERTICAL));
+
+                moves.add(new PutWall(pos.east(), Wall.HORIZONTAL));
+                moves.add(new PutWall(pos.east(), Wall.VERTICAL));
+            }
+        }
+        }
+
+        if(count_the_walls){
+        for (int x = 0; x < board.getWidth() - 1; x++) {
+            for (int y = 0; y < board.getHeight() - 1; y++) {
+                Position pos = new Position(x, y);
+                if (board.getWall(pos) != null) {
+                    pos = pos.south().west();
+                    moves.add(new PutWall(pos.south(), Wall.HORIZONTAL));
+                    moves.add(new PutWall(pos.south(), Wall.VERTICAL));
+
+                    moves.add(new PutWall(pos.north(), Wall.HORIZONTAL));
+                    moves.add(new PutWall(pos.north(), Wall.VERTICAL));
+
+                    moves.add(new PutWall(pos.west(), Wall.HORIZONTAL));
+                    moves.add(new PutWall(pos.west(), Wall.VERTICAL));
+
+                    moves.add(new PutWall(pos.east(), Wall.HORIZONTAL));
+                    moves.add(new PutWall(pos.east(), Wall.VERTICAL));
+
+                }
+            }
+
+        }
+        }
+        if(count_the_walls_2){
+            for (int x = 0; x < board.getWidth() - 1; x++) {
+                for (int y = 0; y < board.getHeight() - 1; y++) {
+                    Position pos = new Position(x, y);
+                    Wall the_wall =board.getWall(pos);
+                    if (the_wall != null) {
+                        if(the_wall == Wall.HORIZONTAL){
+                            moves.add(new PutWall(pos.west().west(), Wall.HORIZONTAL));
+                            moves.add(new PutWall(pos.east().east(), Wall.HORIZONTAL));
+                            moves.add(new PutWall(pos.west(), Wall.VERTICAL));
+                            moves.add(new PutWall(pos.east(), Wall.VERTICAL));
+                            moves.add(new PutWall(pos.south(), Wall.VERTICAL));
+                            moves.add(new PutWall(pos.north(), Wall.VERTICAL));
+                            moves.add(new PutWall(pos.west().south(), Wall.VERTICAL));
+                            moves.add(new PutWall(pos.west().north(), Wall.VERTICAL));
+                            moves.add(new PutWall(pos.east().south(), Wall.VERTICAL));
+                            moves.add(new PutWall(pos.east().north(), Wall.VERTICAL));
+                        }
+                        pos = pos.south().west();
+                        moves.add(new PutWall(pos.south(), Wall.HORIZONTAL));
+                        moves.add(new PutWall(pos.south(), Wall.VERTICAL));
+
+                        moves.add(new PutWall(pos.north(), Wall.HORIZONTAL));
+                        moves.add(new PutWall(pos.north(), Wall.VERTICAL));
+
+                        moves.add(new PutWall(pos.west(), Wall.HORIZONTAL));
+                        moves.add(new PutWall(pos.west(), Wall.VERTICAL));
+
+                        moves.add(new PutWall(pos.east(), Wall.HORIZONTAL));
+                        moves.add(new PutWall(pos.east(), Wall.VERTICAL));
+
+                    }
+                }
+
+            }
+        }
+        /*remove tekrari*/
+        Wall walls[][] = new Wall[board.getWidth() - 1][board.getHeight() - 1];
+        Board check_board = board.clone();
         for(int i=0;i<moves.size();i++){
-            Board tboard = board.clone();
-            tboard.move(moves.get(i));
-            childern.add(new Node(tboard,moves.get(i)));
+            if (moves.get(i).isLegal(check_board)) {
+                if(moves.get(i) instanceof PutWall){
+                    Wall wall = ((PutWall) moves.get(i)).getWall();
+                    Position pos = ((PutWall) moves.get(i)).getPosition();
+                    if(walls[pos.getX()][pos.getY()] != wall)
+                        walls[pos.getX()][pos.getY()] = wall;
+                    else
+                        continue;
+                }
+                Board tboard = board.clone();
+                tboard.move(moves.get(i));
+                childern.add(new Node(tboard, moves.get(i)));
+            }
         }
         if (childern.size() == 0)
             System.out.println("here");
