@@ -3,6 +3,7 @@ package martijn.quoridor.brains;
 import martijn.quoridor.model.*;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 
@@ -96,12 +97,12 @@ class Eval {
         Orientation[] my_steps = me.findGoal();
         Orientation[] opponent_steps = opponent.findGoal();
         double cost= opponent_steps.length - my_steps.length;
-        if (node.move instanceof Jump && opponent.getWallCount() != 1)
+        if (node.move instanceof Jump )
             cost++;
         if(opponent.getWallCount() == 1 && node.move instanceof PutWall)
             cost++;
 
-        return cost;
+        return cost * 100;// + new Random().nextInt(10);
     }
 }
 
@@ -110,19 +111,25 @@ class MinMax {
     public int turn;
     public long timer;
     public int the_horizon = 2;
+    public int temp_horizon = the_horizon;
     public Move getNextMove(Board board){
         Board tempBorad = board.clone();
-        int horizon = the_horizon;
+        int horizon = temp_horizon;
         turn = board.getTurnIndex();
         timer = System.currentTimeMillis();
-        Node bestnode = min_max(tempBorad,false,horizon,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
+        Node bestnode = min_max(tempBorad,false,horizon,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY, true);
         System.out.println(System.currentTimeMillis() - timer);
         return bestnode.move;
     }
-    public Node min_max(Board board, Boolean i_am_min, int horizon, double alpha, double beta){
+    public Node min_max(Board board, Boolean i_am_min, int horizon, double alpha, double beta,Boolean i_am_top_layer){
         ArrayList<Node> childes = succ2(board);
-        ArrayList<Node> queue = new ArrayList<>();
+        ArrayList<Node> same_scores = new ArrayList<>();
         Node ret_node = childes.get(0);
+        if(childes.size() <=40 && temp_horizon == the_horizon)
+            temp_horizon = the_horizon + 1;
+        else{
+            temp_horizon = the_horizon;
+        }
         if(i_am_min)
             ret_node.cost = Double.POSITIVE_INFINITY;
         else
@@ -151,20 +158,30 @@ class MinMax {
         else{
             for (int i = 0; i < childes.size(); i++) {
                 Node mychild = childes.get(i);
-                if(horizon == the_horizon){
-                    System.out.println("size: "+childes.size() + " i: "+i);
+                if(horizon == temp_horizon){
+//                    System.out.println("size: "+childes.size() + " i: "+i + " h: "+horizon);
                 }
                 if(!check_winner(mychild,turn)) {
-                    Node retval = min_max(childes.get(i).board, !i_am_min, horizon - 1, alpha, beta);
+                    Node retval = min_max(childes.get(i).board, !i_am_min, horizon - 1, alpha, beta, false);
                     mychild.setCost(retval.cost);
                 }
                 if(i_am_min && mychild.cost < beta){
                     beta  = mychild.cost;
                     ret_node = mychild;
+                    same_scores.clear();
+                    same_scores.add(mychild);
+                }
+                else if(i_am_min && mychild.cost == beta){
+                    same_scores.add(mychild);
                 }
                 else if (!i_am_min && mychild.cost > alpha){
                     alpha = mychild.cost;
                     ret_node = mychild;
+                    same_scores.clear();
+                    same_scores.add(mychild);
+                }
+                else if (!i_am_min && mychild.cost == alpha){
+                    same_scores.add(mychild);
                 }
                 if (alpha >= beta){
                     return ret_node;
@@ -172,6 +189,43 @@ class MinMax {
                 if(System.currentTimeMillis() - timer > 4990){
                     return ret_node;
                 }
+            }
+        }
+        if(i_am_top_layer){
+//            System.out.println("Hello");
+            int new_horizon = the_horizon;
+            while(System.currentTimeMillis() - timer < 4990 && same_scores.size() > 1){
+                Node new_best = same_scores.get(0);
+                ArrayList<Node> same_scores_again = new ArrayList<>();
+                new_horizon++;
+                System.out.println("same size:   "+same_scores.size());
+                System.out.println("hor : "+new_horizon);
+                for(int i =0; i < same_scores.size(); i++){
+                    Node child = same_scores.get(i);
+                    Node retval = min_max(childes.get(i).board, !i_am_min, new_horizon, alpha, beta, false);
+                    child.setCost(retval.cost);
+                    if(i_am_min && child.cost < beta){
+                        beta  = child.cost;
+                        new_best = child;
+                    }
+                    else if(i_am_min && child.cost == beta){
+                        same_scores_again.add(child);
+                    }
+                    else if (!i_am_min && child.cost > alpha){
+                        alpha = child.cost;
+                        new_best = child;
+                        same_scores_again.clear();
+                        same_scores_again.add(child);
+                    }
+                    else if (!i_am_min && child.cost == alpha){
+                        same_scores_again.add(child);
+                    }
+                    if(System.currentTimeMillis() - timer > 4990){
+                        return new_best;
+                    }
+                }
+                ret_node = new_best;
+                same_scores = same_scores_again;
             }
         }
         return ret_node;
