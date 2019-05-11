@@ -192,7 +192,6 @@ class MinMax {
             }
         }
         if(i_am_top_layer){
-//            System.out.println("Hello");
             int new_horizon = the_horizon;
             while(System.currentTimeMillis() - timer < 4990 && same_scores.size() > 1){
                 Node new_best = same_scores.get(0);
@@ -202,26 +201,21 @@ class MinMax {
                 System.out.println("hor : "+new_horizon);
                 for(int i =0; i < same_scores.size(); i++){
                     Node child = same_scores.get(i);
+                    double max_score = Double.NEGATIVE_INFINITY;
                     Node retval = min_max(childes.get(i).board, !i_am_min, new_horizon, alpha, beta, false);
                     child.setCost(retval.cost);
-                    if(i_am_min && child.cost < beta){
-                        beta  = child.cost;
-                        new_best = child;
-                    }
-                    else if(i_am_min && child.cost == beta){
-                        same_scores_again.add(child);
-                    }
-                    else if (!i_am_min && child.cost > alpha){
-                        alpha = child.cost;
+
+                    if (child.cost > max_score){
+                        max_score = child.cost;
                         new_best = child;
                         same_scores_again.clear();
                         same_scores_again.add(child);
                     }
-                    else if (!i_am_min && child.cost == alpha){
+                    else if (child.cost == max_score){
                         same_scores_again.add(child);
                     }
                     if(System.currentTimeMillis() - timer > 4990){
-                        return new_best;
+                        return ret_node;
                     }
                 }
                 ret_node = new_best;
