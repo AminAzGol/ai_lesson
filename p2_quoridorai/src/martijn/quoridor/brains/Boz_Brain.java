@@ -97,10 +97,10 @@ class Eval {
         Orientation[] my_steps = me.findGoal();
         Orientation[] opponent_steps = opponent.findGoal();
         double cost= opponent_steps.length - my_steps.length;
-        if (node.move instanceof Jump )
-            cost++;
-        if(opponent.getWallCount() == 1 && node.move instanceof PutWall)
-            cost++;
+//        if (node.move instanceof Jump )
+//            cost++;
+//        if(opponent.getWallCount() == 1 && node.move instanceof PutWall)
+//            cost++;
 
         return cost * 100;// + new Random().nextInt(10);
     }
@@ -202,9 +202,8 @@ class MinMax {
                 for(int i =0; i < same_scores.size(); i++){
                     Node child = same_scores.get(i);
                     double max_score = Double.NEGATIVE_INFINITY;
-                    Node retval = min_max(childes.get(i).board, !i_am_min, new_horizon, alpha, beta, false);
+                    Node retval = min_max(childes.get(i).board, !i_am_min, new_horizon, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
                     child.setCost(retval.cost);
-
                     if (child.cost > max_score){
                         max_score = child.cost;
                         new_best = child;
@@ -283,8 +282,8 @@ class MinMax {
         }
     }
     public void check_and_insert(Move move,ArrayList<Node> children,Wall[][] walls,Board board){
-        if (move.isLegal(board)) {
-            if (move instanceof PutWall) {
+        if (move instanceof PutWall) {
+            if (move.isLegal(board)) {
                 Wall wall = ((PutWall) move).getWall();
                 Position pos = ((PutWall) move).getPosition();
                 if (walls[pos.getX()][pos.getY()] != wall) {
@@ -308,7 +307,7 @@ class MinMax {
         Player players[] = board.getPlayers();
         int player_range = 1;
         ArrayList<Move>  moves = new ArrayList<>();
-        boolean count_the_walls_2 = true;
+        boolean count_the_walls_2 = false;
         Wall walls[][] = new Wall[board.getWidth() - 1][board.getHeight() - 1];
         for(int i = 0; i < players.length; i++){
             Player plr = players[i];
